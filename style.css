@@ -90,6 +90,9 @@
             &:hover {
                 background-color: rgb(86, 86, 86);
             }
+            &:active {
+                transform: translateY(2px);
+              }
         }
     }
 
@@ -119,12 +122,19 @@
                 background-color: rgb(231, 231, 231);
             }
 
+            &:active {
+                transform: translateY(2px);
+              }
+
             &.equal {
                 background-color: rgb(255, 204, 0);
 
                 &:hover {
                     background-color: rgb(238, 190, 0);
                 }
+                &:active {
+                    transform: translateY(2px);
+                  }
             }
         }
     }
