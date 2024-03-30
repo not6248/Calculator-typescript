@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     var number_memory = 0;
     var temp_number = 0;
-    var temp_number_for_reuse = 0;
     var result = 0;
     var operation = null;
     var display = document.querySelector('#display');
@@ -14,58 +13,93 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     function updateDisplay(value) {
         display.innerHTML = value.toString();
+        console.log("Display updated to ".concat(number_memory));
+        console.log("Display updated to ".concat(temp_number));
+    }
+    function updateOperationDisplay() {
+        document.querySelector('#operation').innerHTML = operation !== null ? operation : '';
+    }
+    function updateNumberTempDisplay() {
+        // let temp: any
+        // if (number_memory !== 0 && operation !== null && temp_number !== 0) {
+        //     temp = number_memory
+        // } else {
+        //     temp = '';
+        // }
+        // document.querySelector('#temp')!.innerHTML = temp;
+    }
+    function resetOperation() {
+        operation = null;
+        updateOperationDisplay();
     }
     function checkoperation(operation) {
-        if (operation === '+') {
-            result = temp_number + number_memory;
+        var checkResult = result === 0;
+        switch (operation) {
+            case '+':
+                result = checkResult ? temp_number + number_memory : result + temp_number;
+                break;
+            case '-':
+                result = checkResult ? number_memory - temp_number : result - temp_number;
+                break;
+            case '*':
+                result = checkResult ? temp_number * number_memory : result * temp_number;
+                break;
+            case '/':
+                result = checkResult ? number_memory / temp_number : result / temp_number;
+                break;
         }
-        else if (operation === '-') {
-            result = number_memory - temp_number;
-        }
-        else if (operation === '*') {
-            result = temp_number * number_memory;
-        }
-        else if (operation === '/') {
-            result = temp_number / number_memory;
-        }
-        console.log("Result: ".concat(result));
-        operation = null;
         updateDisplay(result);
+        updateNumberTempDisplay();
+    }
+    function operationSetValue(value) {
+        if (number_memory !== 0) {
+            if (operation === null) {
+                operation = value;
+            }
+            else {
+                checkoperation(operation);
+                temp_number = 0;
+                operation = value;
+            }
+        }
+        updateOperationDisplay();
+        updateNumberTempDisplay();
     }
     var _loop_1 = function (i) {
         document.querySelector("#btn_".concat(i)).addEventListener('click', function () {
             console.log("Button clicked btn_".concat(i));
-            if (operation === null) {
+            if (result !== 0 && operation !== null) {
+                number_memory = 0;
+                temp_number = 0;
+                result = 0;
                 number_memory = parseFloat("".concat(number_memory).concat(i));
+                updateDisplay(number_memory);
+                resetOperation();
+                return;
             }
-            else {
-                temp_number = parseFloat("".concat(temp_number).concat(i));
-            }
-            updateDisplay(operation === null ? number_memory : temp_number);
+            operation === null
+                ? number_memory = parseFloat("".concat(number_memory).concat(i))
+                : temp_number = parseFloat("".concat(temp_number).concat(i));
+            updateDisplay(operation === null
+                ? number_memory
+                : temp_number);
+            updateNumberTempDisplay();
         });
     };
     for (var i = 0; i <= 9; i++) {
         _loop_1(i);
     }
-    document.querySelector('#minus').addEventListener('click', function () {
-        console.log('Button clicked btn_multiply');
-        operation = '-';
-        temp_number_for_reuse = number_memory;
+    document.querySelector('#btn_plus').addEventListener('click', function () {
+        operationSetValue('+');
     });
-    document.querySelector('#btn_divide').addEventListener('click', function () {
-        console.log('Button clicked btn_divide');
-        operation = '/';
-        temp_number_for_reuse = number_memory;
+    document.querySelector('#minus').addEventListener('click', function () {
+        operationSetValue('-');
     });
     document.querySelector('#btn_multiply').addEventListener('click', function () {
-        console.log('Button clicked btn_multiply');
-        operation = '*';
-        temp_number_for_reuse = number_memory;
+        operationSetValue('*');
     });
-    document.querySelector('#btn_plus').addEventListener('click', function () {
-        console.log('Button clicked btn_plus');
-        operation = '+';
-        temp_number_for_reuse = number_memory;
+    document.querySelector('#btn_divide').addEventListener('click', function () {
+        operationSetValue('/');
     });
     document.querySelector('#equal').addEventListener('click', function () {
         checkoperation(operation);
@@ -73,15 +107,22 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector('#ac').addEventListener('click', function () {
         console.log('Button clicked ac');
         number_memory = 0;
-        operation = null;
         temp_number = 0;
         result = 0;
-        temp_number_for_reuse = 0;
+        resetOperation();
         updateDisplay(result);
     });
     document.querySelector('#dc').addEventListener('click', function () {
-        console.log('Button clicked delete');
-        number_memory = Math.floor(number_memory / 10);
-        updateDisplay(number_memory);
+        if (!result) {
+            console.log('Button clicked delete');
+            if (operation === null) {
+                number_memory = Math.floor(number_memory / 10);
+            }
+            else {
+                temp_number = Math.floor(temp_number / 10);
+            }
+            updateDisplay(operation === null ? number_memory : temp_number);
+            number_memory === 0 && resetOperation();
+        }
     });
 });

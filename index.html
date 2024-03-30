@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Calculator Typescript</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
 </head>
@@ -13,10 +13,14 @@
     <div class="container">
         <div class="calculator-body">
             <p id="display" class="display">0</p>
+            <div class="operation-container">
+                <p id="temp" class="temp"></p>
+                <p id="operation" class="operation"></p>
+            </div>
             <div class="btn-container">
                 <div class="row-dc-ac">
-                    <button id="dc" class="btn">DC</button>
-                    <button id="ac" class="btn">AC</button>
+                    <button id="dc" class="btn"><-x- </button>
+                            <button id="ac" class="btn">AC</button>
                 </div>
                 <div class="row">
                     <button id="btn_7" class="btn">7</button>

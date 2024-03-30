@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     let number_memory: number = 0;
     let temp_number: number = 0;
-    let temp_number_for_reuse: number = 0;
     let result: number = 0;
     let operation: string | null = null;
 
@@ -18,38 +17,89 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateDisplay(value) {
         display.innerHTML = value.toString();
+        console.log(`Display updated to ${number_memory}`);
+        console.log(`Display updated to ${temp_number}`);
+    }
 
+    function updateOperationDisplay() {
+        document.querySelector('#operation')!.innerHTML = operation !== null ? operation : '';
+    }
+
+    function updateNumberTempDisplay() {
+        // let temp: any
+        // if (number_memory !== 0 && operation !== null && temp_number !== 0) {
+        //     temp = number_memory
+
+        // } else {
+        //     temp = '';
+        // }
+        // document.querySelector('#temp')!.innerHTML = temp;
+    }
+
+    function resetOperation() {
+        operation = null;
+        updateOperationDisplay();
     }
 
     function checkoperation(operation) {
-        if (operation === '+') {
-            result = temp_number + number_memory;
-        } else if (operation === '-') {
-            result = number_memory - temp_number;
-        } else if (operation === '*') {
-            result = temp_number * number_memory;
-        } else if (operation === '/') {
-            result = temp_number / number_memory;
+        let checkResult = result === 0
+        switch (operation) {
+            case '+':
+                result = checkResult ? temp_number + number_memory : result + temp_number;
+                break;
+            case '-':
+                result = checkResult ? number_memory - temp_number : result - temp_number;
+                break;
+            case '*':
+                result = checkResult ? temp_number * number_memory : result * temp_number;
+                break;
+            case '/':
+                result = checkResult ? number_memory / temp_number : result / temp_number;
+                break;
         }
-        console.log(`Result: ${result}`);
-        operation = null;
+
         updateDisplay(result);
+        updateNumberTempDisplay();
     }
 
-    function operationSetValue(operation) {
-        operation = operation;
-        temp_number_for_reuse = number_memory;
+    function operationSetValue(value: string) {
+        if (number_memory !== 0) {
+            if (operation === null) {
+                operation = value;
+            } else {
+                checkoperation(operation);
+                temp_number = 0;
+                operation = value;
+            }
+        }
+
+        updateOperationDisplay();
+        updateNumberTempDisplay();
+
     }
 
     for (let i = 0; i <= 9; i++) {
         document.querySelector(`#btn_${i}`)!.addEventListener('click', () => {
             console.log(`Button clicked btn_${i}`);
-            if (operation === null) {
+            if (result !== 0 && operation !== null) {
+                number_memory = 0;
+                temp_number = 0;
+                result = 0;
                 number_memory = parseFloat(`${number_memory}${i}`);
-            } else {
-                temp_number = parseFloat(`${temp_number}${i}`);
+                updateDisplay(number_memory);
+                resetOperation();
+                return;
             }
-            updateDisplay(operation === null ? number_memory : temp_number);
+
+            operation === null
+                ? number_memory = parseFloat(`${number_memory}${i}`)
+                : temp_number = parseFloat(`${temp_number}${i}`);
+            updateDisplay(
+                operation === null
+                    ? number_memory
+                    : temp_number);
+
+            updateNumberTempDisplay();
         });
     }
     document.querySelector('#btn_plus')!.addEventListener('click', () => {
@@ -64,6 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.querySelector('#btn_divide')!.addEventListener('click', () => {
         operationSetValue('/');
+
     });
 
     document.querySelector('#equal')!.addEventListener('click', () => {
@@ -72,17 +123,23 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector('#ac')!.addEventListener('click', () => {
         console.log('Button clicked ac');
         number_memory = 0;
-        operation = null;
         temp_number = 0;
         result = 0;
-        temp_number_for_reuse = 0;
+        resetOperation();
         updateDisplay(result);
     });
 
     document.querySelector('#dc')!.addEventListener('click', () => {
-        console.log('Button clicked delete');
-        number_memory = Math.floor(number_memory / 10);
-        updateDisplay(number_memory);
+        if (!result) {
+            console.log('Button clicked delete');
+            if (operation === null) {
+                number_memory = Math.floor(number_memory / 10);
+            } else {
+                temp_number = Math.floor(temp_number / 10);
+            }
+            updateDisplay(operation === null ? number_memory : temp_number);
+            number_memory === 0 && resetOperation();
+        }
     });
 });
 
