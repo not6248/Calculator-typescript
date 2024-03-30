@@ -1,88 +1,96 @@
 document.addEventListener("DOMContentLoaded", function () {
-    var number_memory = 0;
+    var currentNumber = 0;
     var temp_number = 0;
     var result = 0;
     var operation = null;
+    var isTempShow = false; // Add this line
     var display = document.querySelector('#display');
     display.innerHTML = temp_number.toString();
-    if (typeof number_memory === 'number') {
-        console.log('number_memory is a number');
-    }
-    if (typeof temp_number === 'number') {
-        console.log('temp_number is a number');
-    }
     function updateDisplay(value) {
         display.innerHTML = value.toString();
-        console.log("Display updated to ".concat(number_memory));
+        console.log("Display updated to ".concat(currentNumber));
         console.log("Display updated to ".concat(temp_number));
     }
     function updateOperationDisplay() {
         document.querySelector('#operation').innerHTML = operation !== null ? operation : '';
     }
     function updateNumberTempDisplay() {
-        // let temp: any
-        // if (number_memory !== 0 && operation !== null && temp_number !== 0) {
-        //     temp = number_memory
-        // } else {
-        //     temp = '';
-        // }
-        // document.querySelector('#temp')!.innerHTML = temp;
+        var tempDisplay;
+        if (isTempShow && operation !== null) {
+            tempDisplay = currentNumber;
+        }
+        else {
+            tempDisplay = '';
+        }
+        document.querySelector('#temp').innerHTML = tempDisplay;
     }
     function resetOperation() {
         operation = null;
         updateOperationDisplay();
     }
     function checkoperation(operation) {
-        var checkResult = result === 0;
+        var checkResult = result === 0; //มีผลลัพธ์หรือยัง
         switch (operation) {
             case '+':
-                result = checkResult ? temp_number + number_memory : result + temp_number;
+                result =
+                    checkResult
+                        ? temp_number + currentNumber
+                        : result + temp_number; //ถ้ามีผลลัพธ์ ให้คำรวณต่อจากผลลัพธ์
                 break;
             case '-':
-                result = checkResult ? number_memory - temp_number : result - temp_number;
+                result =
+                    checkResult
+                        ? currentNumber - temp_number
+                        : result - temp_number; //ถ้ามีผลลัพธ์ ให้คำรวณต่อจากผลลัพธ์
                 break;
             case '*':
-                result = checkResult ? temp_number * number_memory : result * temp_number;
+                result =
+                    checkResult
+                        ? temp_number * currentNumber
+                        : result * temp_number; //ถ้ามีผลลัพธ์ ให้คำรวณต่อจากผลลัพธ์
                 break;
             case '/':
-                result = checkResult ? number_memory / temp_number : result / temp_number;
+                if (temp_number === 0) {
+                    alert("Error: Cannot divide by zero!"); //แสดงข้อความเมื่อหารด้วย 0
+                    return;
+                }
+                result =
+                    checkResult
+                        ? currentNumber / temp_number
+                        : result / temp_number; //ถ้ามีผลลัพธ์ ให้คำรวณต่อจากผลลัพธ์
                 break;
         }
-        updateDisplay(result);
+        updateDisplay(result ? "= ".concat(result) : currentNumber);
+        isTempShow = false;
         updateNumberTempDisplay();
     }
     function operationSetValue(value) {
-        if (number_memory !== 0) {
-            if (operation === null) {
-                operation = value;
-            }
-            else {
-                checkoperation(operation);
-                temp_number = 0;
-                operation = value;
-            }
+        if (operation === null) {
+            operation = value;
+            // if (result !== 0) {
+            //     currentNumber = result; 
+            //     result = 0; //
+            // }
+        }
+        else {
+            checkoperation(operation);
+            operation = value;
+            temp_number = 0;
         }
         updateOperationDisplay();
         updateNumberTempDisplay();
     }
     var _loop_1 = function (i) {
         document.querySelector("#btn_".concat(i)).addEventListener('click', function () {
-            console.log("Button clicked btn_".concat(i));
             if (result !== 0 && operation !== null) {
-                number_memory = 0;
-                temp_number = 0;
-                result = 0;
-                number_memory = parseFloat("".concat(number_memory).concat(i));
-                updateDisplay(number_memory);
+                currentNumber = temp_number = result = parseFloat("".concat(0).concat(i));
+                updateDisplay(currentNumber);
                 resetOperation();
                 return;
             }
-            operation === null
-                ? number_memory = parseFloat("".concat(number_memory).concat(i))
-                : temp_number = parseFloat("".concat(temp_number).concat(i));
-            updateDisplay(operation === null
-                ? number_memory
-                : temp_number);
+            operation === null ? currentNumber = parseFloat("".concat(currentNumber).concat(i)) : temp_number = parseFloat("".concat(temp_number).concat(i));
+            isTempShow = operation !== null;
+            updateDisplay(operation === null ? currentNumber : temp_number);
             updateNumberTempDisplay();
         });
     };
@@ -106,23 +114,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.querySelector('#ac').addEventListener('click', function () {
         console.log('Button clicked ac');
-        number_memory = 0;
+        currentNumber = 0;
         temp_number = 0;
         result = 0;
         resetOperation();
+        updateNumberTempDisplay();
         updateDisplay(result);
     });
     document.querySelector('#dc').addEventListener('click', function () {
         if (!result) {
-            console.log('Button clicked delete');
             if (operation === null) {
-                number_memory = Math.floor(number_memory / 10);
+                currentNumber = Math.floor(currentNumber / 10);
             }
             else {
                 temp_number = Math.floor(temp_number / 10);
             }
-            updateDisplay(operation === null ? number_memory : temp_number);
-            number_memory === 0 && resetOperation();
+            updateDisplay(operation === null ? currentNumber : temp_number);
+            currentNumber === 0 && resetOperation();
         }
     });
 });
