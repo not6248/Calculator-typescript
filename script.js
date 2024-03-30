@@ -4,12 +4,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var result = 0;
     var operation = null;
     var isTempShow = false; // Add this line
+    var isCurrentNumberBtnClicked = false; // Add this line
     var display = document.querySelector('#display');
     display.innerHTML = temp_number.toString();
     function updateDisplay(value) {
         display.innerHTML = value.toString();
-        console.log("Display updated to ".concat(currentNumber));
-        console.log("Display updated to ".concat(temp_number));
     }
     function updateOperationDisplay() {
         document.querySelector('#operation').innerHTML = operation !== null ? operation : '';
@@ -65,7 +64,8 @@ document.addEventListener("DOMContentLoaded", function () {
         updateNumberTempDisplay();
     }
     function operationSetValue(value) {
-        if (operation === null) {
+        console.log(!isTempShow);
+        if (operation === null || !isTempShow) {
             operation = value;
             // if (result !== 0) {
             //     currentNumber = result; 
@@ -80,6 +80,26 @@ document.addEventListener("DOMContentLoaded", function () {
         updateOperationDisplay();
         updateNumberTempDisplay();
     }
+    function ac() {
+        currentNumber = 0;
+        temp_number = 0;
+        result = 0;
+        resetOperation();
+        updateNumberTempDisplay();
+        updateDisplay(result);
+    }
+    function dc() {
+        if (!result) {
+            if (operation === null) {
+                currentNumber = Math.floor(currentNumber / 10);
+            }
+            else {
+                temp_number = Math.floor(temp_number / 10);
+            }
+            updateDisplay(operation === null ? currentNumber : temp_number);
+            currentNumber === 0 && resetOperation();
+        }
+    }
     var _loop_1 = function (i) {
         document.querySelector("#btn_".concat(i)).addEventListener('click', function () {
             if (result !== 0 && operation !== null) {
@@ -90,6 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             operation === null ? currentNumber = parseFloat("".concat(currentNumber).concat(i)) : temp_number = parseFloat("".concat(temp_number).concat(i));
             isTempShow = operation !== null;
+            isCurrentNumberBtnClicked = true;
             updateDisplay(operation === null ? currentNumber : temp_number);
             updateNumberTempDisplay();
         });
@@ -113,24 +134,17 @@ document.addEventListener("DOMContentLoaded", function () {
         checkoperation(operation);
     });
     document.querySelector('#ac').addEventListener('click', function () {
-        console.log('Button clicked ac');
-        currentNumber = 0;
-        temp_number = 0;
-        result = 0;
-        resetOperation();
-        updateNumberTempDisplay();
-        updateDisplay(result);
+        ac();
     });
     document.querySelector('#dc').addEventListener('click', function () {
-        if (!result) {
-            if (operation === null) {
-                currentNumber = Math.floor(currentNumber / 10);
-            }
-            else {
-                temp_number = Math.floor(temp_number / 10);
-            }
-            updateDisplay(operation === null ? currentNumber : temp_number);
-            currentNumber === 0 && resetOperation();
+        dc();
+    });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Backspace') {
+            dc();
+        }
+        if (event.key === 'Enter') {
+            checkoperation(operation);
         }
     });
 });
